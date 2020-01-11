@@ -1,10 +1,15 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.ListIterator;
 
 public class Main{
     public static void main(String args[]){
         Hash<String, Integer> x = new Hash<String, Integer>();
-        x.put("hi", 10);
+        x.insert("Deepak", 10);
+        x.insert("Rahul", 25);
+        System.out.println("Deepak: " + x.get("Deepak"));
+        System.out.println("Rahul: " + x.get("Rahul"));
     }
 
 }
@@ -14,7 +19,7 @@ class Hash<T, U>{
     int base;
     Hash(){
         hashlist = new ArrayList<LinkedList<Packet<T, U>>>();
-        base = 10;
+        base = 100;
         for(int i = 0; i < base; i++){
             hashlist.add(null);
         }
@@ -23,24 +28,67 @@ class Hash<T, U>{
         int hash = 7;
         String strkey = (String) key;
         for (int i = 0; i < strkey.length(); i++) {
-            hash = hash*31 + (int) strkey.charAt(i);
+            hash = hash*5 + (int) strkey.charAt(i);
         }
         return hash;
     }
-    public void put(T key, U value){
+    private void put(T key, U value){
+        //new Packet<T, U>(key, value)
         int hash = this.hashFunc(key);
         int index = hash % this.base;
+        int flag = 0;
         if(hashlist.get(index) == null){
             LinkedList<Packet<T, U>> ll = new LinkedList<Packet<T, U>>();
             hashlist.set(index, ll);
+        } else {
+            ListIterator<Packet<T, U>> li = hashlist.get(index).listIterator();
+            if(hashlist.get(index).size() == 0){
+                hashlist.get(index).add(new Packet<T, U>(key, value));
+                return;
+            } else {
+                while(li.hasNext()){
+                    Packet<T, U> temp = li.next();
+                    if(temp.key == key){
+                        if(li.hasPrevious()){
+                            li.previous().value = value;
+                        }     
+                    }
+                }
+            }
         }
+    }
+
+    public void insert(T key, U value){
+        put(key, value);
+        put(key, value);
+    }
+
+    public U get(T key){
+        int hash = this.hashFunc(key);
+        int index = hash % this.base;
+        if(hashlist.get(index) == null){
+            return null;
+        } else {
+            if(hashlist.get(index).size() == 0){
+                return null;
+            } else {
+                ListIterator<Packet<T, U>> li = hashlist.get(index).listIterator();
+                while(li.hasNext()){
+                    Packet<T, U> temp = li.next();
+                    if(temp.key == key){
+                        return temp.value;
+                    }
+                }
+            }
+        }
+        return null;
     }
 
 }
 
 class Packet<T, U> { //A packet is a key-value pair
-    T key;
-    U value;
+    public T key;
+    public U value;
     Packet(T key, U value){
         this.key = key;
         this.value = value;
