@@ -8,6 +8,7 @@ public class Main{
         Hash<String, Integer> x = new Hash<String, Integer>();
         x.insert("Deepak", 10);
         x.insert("Rahul", 25);
+        x.insert("Rahul", 56);
         System.out.println("Deepak: " + x.get("Deepak"));
         System.out.println("Rahul: " + x.get("Rahul"));
     }
@@ -32,7 +33,7 @@ class Hash<T, U>{
         }
         return hash;
     }
-    private void put(T key, U value){
+    public void insert(T key, U value){
         //new Packet<T, U>(key, value)
         int hash = this.hashFunc(key);
         int index = hash % this.base;
@@ -40,27 +41,19 @@ class Hash<T, U>{
         if(hashlist.get(index) == null){
             LinkedList<Packet<T, U>> ll = new LinkedList<Packet<T, U>>();
             hashlist.set(index, ll);
+            insert(key, value);
         } else {
-            ListIterator<Packet<T, U>> li = hashlist.get(index).listIterator();
             if(hashlist.get(index).size() == 0){
                 hashlist.get(index).add(new Packet<T, U>(key, value));
                 return;
             } else {
-                while(li.hasNext()){
-                    Packet<T, U> temp = li.next();
-                    if(temp.key == key){
-                        if(li.hasPrevious()){
-                            li.previous().value = value;
-                        }     
+                for(int i=0;i<hashlist.get(index).size();i++){
+                    if(hashlist.get(index).get(i).key == key){
+                        hashlist.get(index).get(i).value = value;
                     }
                 }
             }
         }
-    }
-
-    public void insert(T key, U value){
-        put(key, value);
-        put(key, value);
     }
 
     public U get(T key){
